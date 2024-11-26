@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán</title>
+    <link rel="stylesheet" href="checkout.css">
+</head>
+<body>
+    <div class="container">
+        <div class="cart-items">
+            <h2>Thông Tin Giỏ Hàng</h2>
+            <div id="cart-list">
+                <!-- Cart items will be loaded here -->
+            </div>
+            <p id="total-price"><strong>Tổng Tiền:</strong> 0 VND</p>
+        </div>
+        <div class="options">
+            <h3>Chọn Hình Thức Thanh Toán</h3>
+            <button class="cash" onclick="handleCashPayment()">Thanh Toán Bằng Tiền Mặt</button>
+            <button class="online" onclick="handleOnlinePayment()">Thanh Toán Online</button>
+        </div>
+    </div>
+
+    <script>
+        // Load cart data from localStorage
+        function loadCart() {
+            const cartData = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartList = document.getElementById('cart-list');
+            const totalPriceEl = document.getElementById('total-price');
+
+            let totalPrice = 0;
+            cartList.innerHTML = ''; // Clear previous data
+
+            cartData.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item';
+                itemEl.innerHTML = `
+                    <span>${item.product_name}</span>
+                    <span>${item.quantity} x ${item.price} VND</span>
+                `;
+                totalPrice += item.quantity * item.price;
+                cartList.appendChild(itemEl);
+            });
+
+            totalPriceEl.textContent = `Tổng Tiền: ${totalPrice.toLocaleString()} VND`;
+        }
+
+        // Handle cash payment
+        function handleCashPayment() {
+            alert('Đơn Hàng Đã Hoàn Thành. Hãy Thanh Toán Khi Tới Quán!');
+            window.location.href = 'order_complete.html'; // Redirect to another page
+        }
+
+        // Handle online payment
+        async function handleOnlinePayment() {
+            const cartData = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cartData.length === 0) {
+                alert('Giỏ hàng rỗng. Không thể thanh toán!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ cartItems: cartData }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Chuyển hướng đến ZaloPay để thanh toán...');
+                    window.location.href = result.payment_url; // Redirect to ZaloPay
+                } else {
+                    alert(`Lỗi: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error during online payment:', error);
+                alert('Không thể thực hiện thanh toán online!');
+            }
+        }
+
+        // Load cart on page load
+        window.onload = loadCart;
+    </script>
+</body>
+</html>

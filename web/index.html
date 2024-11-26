@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="logo.png" alt="Logo Quán Chỉ May Đại Lợi">
+                <h1>Chỉ May Đại Lợi</h1>
+            </div>
+            <div class="auth-links" id="auth-links">
+                <!-- Nút Đăng Nhập và Đăng Ký sẽ thay thế bằng Đăng Xuất khi người dùng đăng nhập -->
+                <a href="login.html" id="login-link">Đăng Nhập</a>
+                <a href="user.html" id="register-link">Đăng Ký</a>
+                <a href="cart.html" id="cart-link">XEM GIỎ HÀNG</a>
+                <div id="logout" style="display: none;">
+                    <button onclick="logout()">Đăng Xuất</button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <script>
+        // Kiểm tra trạng thái đăng nhập khi tải trang
+        document.addEventListener("DOMContentLoaded", function() {
+            const menu = document.querySelector('.menu'); // Lấy menu
+            const loginLink = document.getElementById('login-link');
+            const registerLink = document.getElementById('register-link');
+            const logoutBtn = document.getElementById('logout');
+            const cartbtn = document.getElementById('cart-link')
+
+             // Kiểm tra trạng thái đăng nhập từ localStorage
+            const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+            if (isLoggedIn) {
+                menu.style.display = 'flex'; // Hiển thị menu (dùng flex để giữ layout)
+                loginLink.style.display = 'none'; // Ẩn "Đăng Nhập"
+                registerLink.style.display = 'none'; // Ẩn "Đăng Ký"
+                logoutBtn.style.display = 'inline'; // Hiển thị "Đăng Xuất"
+                cartbtn.style.display = 'inline';
+
+            } else {
+                menu.style.display = 'none'; // Ẩn menu
+                loginLink.style.display = 'inline'; // Hiển thị "Đăng Nhập"
+                registerLink.style.display = 'inline'; // Hiển thị "Đăng Ký"
+                logoutBtn.style.display = 'none'; // Ẩn "Đăng Xuất"
+                cartbtn.style.display = 'none';
+            }
+        });
+
+        // Hàm đăng xuất
+        function logout() {
+            localStorage.removeItem('loggedIn'); // Xóa trạng thái đăng nhập
+            alert("Bạn đã đăng xuất!");
+            location.reload(); // Tải lại trang
+        }
+    </script>
+    
+    <!-- Menu -->
+    <nav>
+        <ul class="menu">
+            <li><button class="menu-btn" onclick="location.href='product.html'">SẢN PHẨM</button></li>
+            <li><button class="menu-btn" onclick="location.href=''">LIÊN HỆ</button></li>
+            <li><button class="menu-btn" onclick="location.href=''">GÓP Ý</button></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="store-info">
+            <h2>Thông Tin Quán</h2>
+            <p><strong>Tên Quán:</strong> Chỉ May Đại Lợi</p>
+            <p><strong>Địa Chỉ:</strong> 123 Đường XYZ</p>
+            <p><strong>Email:</strong> info@chimaydai.com</p>
+            <p><strong>Số Điện Thoại:</strong> +1234567890</p>
+        </div>
+
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=...your-google-map-embed-url..." width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+
+</body>
+</html>

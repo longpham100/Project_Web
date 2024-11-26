@@ -1,0 +1,9 @@
+- tạo file index.html và các trang khác
+- tạo connect mới cho dynamodb 
+- chạy dynamodb local = cmd : java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb -port 8000
+- xong tạo bảng
+- tải API: npm install node_modules
+- tạo file server.js
+- tạo file app.js
+- tạo script trong file html
+- chạy api : node app.js

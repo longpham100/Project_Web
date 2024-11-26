@@ -1,0 +1,89 @@
+/* Định dạng cơ bản cho body */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+    margin: 0;
+}
+
+/* Căn giữa toàn bộ nội dung */
+.center-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex-direction: column;
+}
+
+/* Khung chứa tiêu đề và form */
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+/* Định dạng tiêu đề */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px; /* Khoảng cách giữa tiêu đề và form */
+    font-size: 24px;
+}
+
+/* Định dạng form */
+form {
+    text-align: left; /* Căn trái nội dung form */
+}
+
+/* Định dạng các label */
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: bold;
+}
+
+/* Định dạng các input */
+input {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Định dạng nút đăng ký */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Phản hồi từ server */
+#responseMessage {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.success {
+    color: #28a745;
+}
+
+.error {
+    color: #dc3545;
+}

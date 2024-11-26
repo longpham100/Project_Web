@@ -1,0 +1,146 @@
+### Cơ sở dữ liệu DynamoDB hoàn chỉnh theo yêu cầu của bạn
+
+Dưới đây là thiết kế chi tiết cho hệ thống với các bảng chính: **Users**, **Products**, **Carts**, và **Orders**. Chúng sẽ được thiết kế để dễ dàng liên kết với nhau, mặc dù DynamoDB là NoSQL, không có quan hệ trực tiếp nhưng có thể dùng **Partition Key (PK)** và **Sort Key (SK)** để quản lý mối quan hệ.
+
+---
+
+### 1. **Bảng Users**
+Đây là bảng để quản lý thông tin người dùng.
+
+| **Thuộc tính**    | **Kiểu dữ liệu** | **Vai trò**                   |
+|--------------------|------------------|--------------------------------|
+| `user_id`          | `String`        | Partition Key (UUID hoặc email) |
+| `username`         | `String`        | Tên người dùng                |
+| `password`         | `String`        | Mật khẩu (hash)               |
+| `email`            | `String`        | Email người dùng              |
+| `phone_number`     | `String`        | Số điện thoại                 |
+| `address`          | `String`        | Địa chỉ giao hàng             |
+| `created_at`       | `String`        | Thời gian tạo tài khoản       |
+
+---
+
+### 2. **Bảng Products**
+Quản lý danh mục sản phẩm.
+
+| **Thuộc tính**    | **Kiểu dữ liệu** | **Vai trò**                   |
+|--------------------|------------------|--------------------------------|
+| `product_id`       | `String`        | Partition Key (UUID)          |
+| `product_name`     | `String`        | Tên sản phẩm                  |
+| `description`      | `String`        | Mô tả chi tiết sản phẩm       |
+| `price`            | `Number`        | Giá sản phẩm                  |
+| `image_url`        | `String`        | URL hình ảnh sản phẩm         |
+| `stock`            | `Number`        | Số lượng tồn kho              |
+
+---
+
+### 3. **Bảng Carts**
+Mỗi người dùng có giỏ hàng riêng, mỗi sản phẩm trong giỏ sẽ là một dòng.
+
+| **Thuộc tính**    | **Kiểu dữ liệu** | **Vai trò**                   |
+|--------------------|------------------|--------------------------------|
+| `user_id`          | `String`        | Partition Key (liên kết với bảng Users) |
+| `product_id`       | `String`        | Sort Key (liên kết với bảng Products)  |
+| `product_name`     | `String`        | Tên sản phẩm                  |
+| `price`            | `Number`        | Giá sản phẩm                  |
+| `quantity`         | `Number`        | Số lượng                      |
+| `total_price`      | `Number`        | Giá * số lượng                |
+
+---
+
+### 4. **Bảng Orders**
+Quản lý các đơn hàng đã được đặt.
+
+| **Thuộc tính**    | **Kiểu dữ liệu** | **Vai trò**                   |
+|--------------------|------------------|--------------------------------|
+| `order_id`         | `String`        | Partition Key (UUID)          |
+| `user_id`          | `String`        | Sort Key (liên kết với bảng Users) |
+| `products`         | `List`          | Danh sách sản phẩm (bao gồm `product_id`, `product_name`, `quantity`, `price`) |
+| `total_price`      | `Number`        | Tổng tiền                     |
+| `status`           | `String`        | Trạng thái đơn hàng (pending, confirmed, shipped, completed) |
+| `created_at`       | `String`        | Thời gian tạo đơn hàng        |
+
+---
+
+### Sơ đồ quan hệ logic
+1. **User - Cart**: `user_id` trong `Carts` liên kết với `user_id` trong `Users`.
+2. **Cart - Product**: `product_id` trong `Carts` liên kết với `product_id` trong `Products`.
+3. **User - Order**: `user_id` trong `Orders` liên kết với `user_id` trong `Users`.
+4. **Order - Product**: `products` trong `Orders` chứa danh sách liên kết với `Products`.
+
+---
+
+### 5. **Các mẫu dữ liệu**
+#### Mẫu dữ liệu bảng `Users`:
+```json
+{
+  "user_id": "user_123",
+  "username": "JohnDoe",
+  "password": "hashed_password",
+  "email": "john@example.com",
+  "phone_number": "123456789",
+  "address": "123 Elm Street",
+  "created_at": "2024-11-20T10:00:00Z"
+}
+```
+
+#### Mẫu dữ liệu bảng `Products`:
+```json
+{
+  "product_id": "prod_001",
+  "product_name": "Áo thun nam",
+  "description": "Áo thun 100% cotton, thoải mái.",
+  "price": 200000,
+  "image_url": "https://example.com/images/shirt.jpg",
+  "stock": 50
+}
+```
+
+#### Mẫu dữ liệu bảng `Carts`:
+```json
+{
+  "user_id": "user_123",
+  "product_id": "prod_001",
+  "product_name": "Áo thun nam",
+  "price": 200000,
+  "quantity": 2,
+  "total_price": 400000
+}
+```
+
+#### Mẫu dữ liệu bảng `Orders`:
+```json
+{
+  "order_id": "order_456",
+  "user_id": "user_123",
+  "products": [
+    {
+      "product_id": "prod_001",
+      "product_name": "Áo thun nam",
+      "quantity": 2,
+      "price": 200000
+    },
+    {
+      "product_id": "prod_002",
+      "product_name": "Quần jeans nữ",
+      "quantity": 1,
+      "price": 500000
+    }
+  ],
+  "total_price": 900000,
+  "status": "pending",
+  "created_at": "2024-11-20T11:00:00Z"
+}
+```
+
+---
+
+### 6. **Triển khai**
+Bạn cần:
+1. Tạo các bảng trên DynamoDB với cấu trúc trên.
+2. Viết các API liên kết các bảng:
+   - API đăng ký & đăng nhập (bảng `Users`).
+   - API giỏ hàng (bảng `Carts`).
+   - API danh sách sản phẩm (bảng `Products`).
+   - API đặt hàng và chi tiết đơn hàng (bảng `Orders`).
+
+Bạn muốn tôi tiếp tục phần nào trước?

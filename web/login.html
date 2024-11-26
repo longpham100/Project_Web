@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="login.css">
+    <title>Đăng Nhập</title>
+</head>
+
+<body>
+    <div class="login-container">
+        <h1>ĐĂNG NHẬP</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email người dùng:</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Mật khẩu:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="submitBtn">Đăng Nhập</button>
+        </form>
+        <p id="message" style="margin-top: 10px; color: red;"></p> <!-- Hiển thị thông báo -->
+        <p class="signup-link">Chưa có tài khoản? <a href="user.html">Đăng ký ngay</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault(); // Ngừng hành động mặc định của form
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageElement = document.getElementById('message');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Thông báo đang gửi yêu cầu đăng nhập
+            messageElement.style.color = 'blue';
+            messageElement.textContent = 'Đang đăng nhập...';
+            submitBtn.disabled = true; // Vô hiệu hóa nút để tránh nhấn lại
+
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                // Đảm bảo rằng phản hồi từ API là JSON hợp lệ
+                let result;
+                try {
+                    result = await response.json();
+                } catch {
+                    throw new Error('Phản hồi từ server không hợp lệ.');
+                }
+                
+                if (response.ok) {
+                    // Đăng nhập thành công
+                    messageElement.style.color = 'green';
+                    messageElement.textContent = result.message;
+                    localStorage.setItem('email', email);
+                    // Lưu trạng thái đăng nhập vào localStorage
+                    localStorage.setItem('loggedIn', 'true');
+
+                    // Điều hướng về trang chủ sau thời gian chờ
+                    setTimeout(() => {
+                        window.location.href = 'index.html';  // Đảm bảo index.html có sẵn
+                    }, 1000);  // Thời gian chờ 1 giây
+                } else {
+                    // Hiển thị lỗi từ API nếu đăng nhập thất bại
+                    messageElement.style.color = 'red';
+                    messageElement.textContent = result.message || 'Đăng nhập thất bại.';
+                }
+            } catch (error) {
+                // Xử lý lỗi khi không thể kết nối đến API
+                console.error('Lỗi khi gọi API:', error);
+                messageElement.style.color = 'red';
+                messageElement.textContent = 'Đã xảy ra lỗi khi kết nối đến máy chủ.';
+            } finally {
+                // Bật lại nút và xóa thông báo
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

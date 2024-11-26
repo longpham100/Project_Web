@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Người Dùng</title>
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+    <div class="center-container">
+        <div class="form-container">
+            <h1>Đăng Ký Người Dùng</h1>
+            <form id="registerForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone">Số Điện Thoại:</label>
+                <input type="text" id="phone" name="phone" required pattern="[0-9]+" title="Chỉ nhập số">
+
+                <label for="password">Mật Khẩu:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="confirm_password">Nhập Lại Mật Khẩu:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+
+                <button type="submit" id="registerBtn">Đăng Ký</button>
+            </form>
+            <p id="responseMessage"></p>
+            <p>Đã có tài khoản? <a href="login.html">Đăng Nhập</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Ngăn form submit mặc định
+
+            // Lấy giá trị từ các input
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            const messageElement = document.getElementById('responseMessage');
+            messageElement.textContent = ''; // Reset thông báo trước
+
+            // Kiểm tra tính hợp lệ của email
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!emailPattern.test(email)) {
+                messageElement.textContent = 'Email không hợp lệ.';
+                messageElement.className = 'error';
+                return;
+            }
+
+            // Kiểm tra mật khẩu có khớp hay không
+            if (password !== confirmPassword) {
+                messageElement.textContent = 'Mật khẩu không khớp!';
+                messageElement.className = 'error';
+                return;
+            }
+
+            // Kiểm tra số điện thoại có hợp lệ không
+            const phonePattern = /^[0-9]{10,11}$/; // Số điện thoại Việt Nam: 10-11 chữ số
+            if (!phonePattern.test(phone)) {
+                messageElement.textContent = 'Số điện thoại không hợp lệ.';
+                messageElement.className = 'error';
+                return;
+            }
+
+            // Gửi yêu cầu đến server
+            try {
+                const response = await fetch('http://localhost:3000/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, phone, password }),
+            });
+
+            // Kiểm tra mã trạng thái HTTP
+            if (response.ok) {
+                const result = await response.json();
+                messageElement.textContent = result.message;
+                messageElement.className = 'success';
+                setTimeout(() => {
+                    window.location.href = 'login.html'; // Chuyển đến trang đăng nhập sau 2 giây
+                }, 2000);
+            } else {
+                const errorText = await response.text(); // Nếu phản hồi không phải JSON, lấy văn bản lỗi
+                messageElement.textContent = errorText;
+                messageElement.className = 'error';
+            }
+        } catch (error) {
+            console.error('Lỗi khi đăng ký:', error);
+            messageElement.textContent = 'Đã xảy ra lỗi trong quá trình đăng ký.';
+            messageElement.className = 'error';
+        }
+    });
+    </script>
+</body>
+</html>
